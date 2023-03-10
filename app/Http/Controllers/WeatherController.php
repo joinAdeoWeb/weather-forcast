@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Http;
 use Validator;
 use DateTime;
 use DateTimeZone;
+use App\Models\Product;
 
 use Illuminate\Http\Request;
 
@@ -92,8 +93,8 @@ class WeatherController extends Controller
                     }
 
                     // Return only the next 3 days (excluding the current day)
-                    $responseResults = array_slice($results, 1, 3);
-                    dd($responseResults);
+                    $weatherCondition = array_slice($results, 1, 3);
+                    $this->recomendProduct($weatherCondition);
                 }
                 else
                 {
@@ -108,4 +109,37 @@ class WeatherController extends Controller
 
         return view('welcome');
     }
+
+    public function recomendProduct($weatherCondition) {
+        $allProducts = Product::all()->toArray();
+        $matchingProducts = [];
+        $recomendation = [];
+        
+        foreach ($weatherCondition as $condition) {
+            foreach ($allProducts as $product) {
+                // if weather in product maches with weather in perticular day add to matchingProduct
+                if ($product['ocasion'] === $condition['conditionCode']) {
+                    $matchingProducts[] = [
+                        'name' => $product['name'],
+                        'sku' => $product['sku'],
+                        'price' => $product['price']
+                    ];
+                }
+                
+                // break out of the inner loop when 2 maching products are found
+                if (count($matchingProducts) >= 2) {
+                    break;
+                }
+            }
+            
+            $condition['recommendations'] = $matchingProducts;
+            $recomendation[] = $condition;
+        }
+        
+        dd($recomendation);
+        
+        return ['recomendation' => $recomendation];
+    }
+    
+    
 }
