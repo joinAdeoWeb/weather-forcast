@@ -110,36 +110,41 @@ class WeatherController extends Controller
         return view('welcome');
     }
 
-    public function recomendProduct($weatherCondition) {
-        $allProducts = Product::all()->toArray();
-        $matchingProducts = [];
-        $recomendation = [];
-        
-        foreach ($weatherCondition as $condition) {
-            foreach ($allProducts as $product) {
-                // if weather in product maches with weather in perticular day add to matchingProduct
-                if ($product['ocasion'] === $condition['conditionCode']) {
-                    $matchingProducts[] = [
-                        'name' => $product['name'],
-                        'sku' => $product['sku'],
-                        'price' => $product['price']
-                    ];
+    public function recomendProduct($weatherCondition)
+    {
+        try
+        {
+            $allProducts = Product::all()->toArray();
+            $matchingProducts = [];
+            $recomendation = [];
+
+            foreach ($weatherCondition as $condition)
+            {
+                foreach ($allProducts as $product)
+                {
+                    // if weather in product maches with weather in perticular day add to matchingProduct
+                    if ($product['ocasion'] === $condition['conditionCode'])
+                    {
+                        $matchingProducts[] = ['name' => $product['name'], 'sku' => $product['sku'], 'price' => $product['price']];
+                    }
+
+                    // break out of the inner loop when 2 maching products are found
+                    if (count($matchingProducts) >= 2)
+                    {
+                        break;
+                    }
                 }
-                
-                // break out of the inner loop when 2 maching products are found
-                if (count($matchingProducts) >= 2) {
-                    break;
-                }
+
+                $condition['recommendations'] = $matchingProducts;
+                $recomendation[] = $condition;
             }
-            
-            $condition['recommendations'] = $matchingProducts;
-            $recomendation[] = $condition;
+
+            return response()->json(['recomendation' => $recomendation], 200);
         }
-        
-        dd($recomendation);
-        
-        return ['recomendation' => $recomendation];
+        catch(\Exception $e)
+        {
+            return response()->json(['error' => $e->getMessage() ], 500);
+        }
     }
-    
-    
 }
+
