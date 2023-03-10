@@ -9,7 +9,12 @@
       <form method="POST" action="{{ route('processForm') }}">
          @csrf
          <label for="city">Enter your city:</label>
-         <input type="text" id="city" name="city">
+         <input type="text" id="city" name="city" list="cities">
+         <datalist id="cities">
+            @foreach ($cityNames as $city)
+            <option value={{ $city }}>{{$city}}
+            @endforeach
+         </datalist>
          <button type="submit">Submit</button>
       </form>
    </body>

@@ -8,6 +8,26 @@ use Illuminate\Http\Request;
 
 class WeatherController extends Controller
 {
+    public function index()
+    {
+        try {
+            $url = "https://api.meteo.lt/v1/places";
+            $response = Http::get($url);
+            $places = $response->json();
+            $cityNames = array();
+            foreach ($places as $place) {
+                if (!in_array($place['name'], $cityNames)) {
+                    $cityNames[] = $place['name'];
+                }
+            }
+            return view('welcome')->with('cityNames', $cityNames);
+        } catch(Exception $e) {
+            return response()->json(["error" => $e->getMessage()], 500);
+        }
+       
+        
+    }
+
     public function processForm(Request $request)
     {
 
@@ -35,7 +55,7 @@ class WeatherController extends Controller
             }
             catch(Exception $e)
             {
-                echo 'Error: ' . $e->getMessage();
+                return response()->json(["error" => $e->getMessage()], 500);
             }
         }
 
