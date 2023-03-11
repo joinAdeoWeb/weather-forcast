@@ -84,9 +84,9 @@ class WeatherController extends Controller
 
     public function filterWeather($weatherData)
     {
-
         $currentDate = new DateTime('now', new DateTimeZone('UTC'));
         $lastDate = null;
+        $combinedData = [];
 
         if (isset($weatherData['forecastTimestamps']))
         {
@@ -116,32 +116,34 @@ class WeatherController extends Controller
 
                         // Add the most common condition code to the day's results
                         $dayResults['conditionCode'] = $mostCommonConditionCode;
-                        $weatherData[] = $dayResults;
-
+                        $combinedData[] = $dayResults;
                         $lastDate = $dateString;
                     }
+
                 }
             }
 
             // Return only the next 3 days (excluding the current day)
-            $fillteredData = array_slice($weatherData, 1, 3);
-            dd($fillteredData);
+            $fillteredData = array_slice($combinedData, 1, 3);
             $this->recomendProduct($fillteredData);
         }
     }
 
     public function recomendProduct($fillteredData)
     {
+
         try
         {
-            $allProducts = Product::where('active', true)->get()
-                ->toArray();
+            if (!is_array($fillteredData))
+            {
+                $fillteredData = json_decode($fillteredData, true);
+            }
+            $allProducts = Product::all()->toArray();
             $recomendation = [];
-
             foreach ($fillteredData as $condition)
             {
                 $matchingProducts = [];
-                foreach ($allProducts as $product)
+                foreach ($allProducts as $product) dd($condition);
                 {
                     // if weather in product maches with weather in perticular day add to matchingProduct
                     if ($product['ocasion'] === $condition['conditionCode'])
