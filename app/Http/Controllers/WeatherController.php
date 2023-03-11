@@ -55,54 +55,16 @@ class WeatherController extends Controller
         {
             $city = $request->input('city');
             $city = strtolower($city);
-            $results = [];
+            $weatherData = [];
 
             try
             {
                 $url = "https://api.meteo.lt/v1/places/$city/forecasts/long-term";
                 $response = Http::get($url);
-                $weather = $response->json();
-                $currentDate = new DateTime('now', new DateTimeZone('UTC'));
-                $lastDate = null;
-
-                if (isset($weather['forecastTimestamps']))
+                $weatherData = $response->json();
+                if (count($weatherData) > 0)
                 {
-                    // Loop through each day in the forecast
-                    foreach ($weather['forecastTimestamps'] as $forecast)
-                    {
-                        $forecastDate = new DateTime($forecast['forecastTimeUtc']);
-                        $diff = $forecastDate->diff($currentDate);
-
-                        // Check if the forecast is within the next 3 days
-                        if ($diff->days <= 3)
-                        {
-                            $dateString = $forecastDate->format('Y-m-d');
-                            if ($dateString !== $lastDate)
-                            {
-                                $dayResults = ['name' => $weather['place']['name'], 'forecastTimeUtc' => $forecast['forecastTimeUtc']];
-
-                                // Loop through each forecast for this day and add condition codes to array
-                                foreach ($weather['forecastTimestamps'] as $forecastOfDay)
-                                {
-                                    $daysConditionCount['conditionCodes'][] = $forecastOfDay['conditionCode'];
-                                }
-
-                                // Get the most common condition code for that day
-                                $conditionCounts = array_count_values($daysConditionCount['conditionCodes']);
-                                $mostCommonConditionCode = key($conditionCounts);
-
-                                // Add the most common condition code to the day's results
-                                $dayResults['conditionCode'] = $mostCommonConditionCode;
-                                $results[] = $dayResults;
-
-                                $lastDate = $dateString;
-                            }
-                        }
-                    }
-
-                    // Return only the next 3 days (excluding the current day)
-                    $weatherCondition = array_slice($results, 1, 3);
-                    $this->recomendProduct($weatherCondition);
+                    $results = $weatherData;
                 }
                 else
                 {
@@ -113,13 +75,62 @@ class WeatherController extends Controller
             {
                 return response()->json(["error" => $e->getMessage() ], 500);
             }
-        }
 
-        $cityNames = $this->getCityNames();
-        return view('welcome', ['cityNames' => $cityNames]);
+            $this->filterWeather($weatherData);
+            $cityNames = $this->getCityNames();
+            return view('welcome', ['cityNames' => $cityNames]);
+        }
     }
 
-    public function recomendProduct($weatherCondition)
+    public function filterWeather($weatherData)
+    {
+
+        $currentDate = new DateTime('now', new DateTimeZone('UTC'));
+        $lastDate = null;
+
+        if (isset($weatherData['forecastTimestamps']))
+        {
+            // Loop through each day in the forecast
+            foreach ($weatherData['forecastTimestamps'] as $forecast)
+            {
+                $forecastDate = new DateTime($forecast['forecastTimeUtc']);
+                $diff = $forecastDate->diff($currentDate);
+
+                // Check if the forecast is within the next 3 days
+                if ($diff->days <= 3)
+                {
+                    $dateString = $forecastDate->format('Y-m-d');
+                    if ($dateString !== $lastDate)
+                    {
+                        $dayResults = ['name' => $weatherData['place']['name'], 'forecastTimeUtc' => $forecast['forecastTimeUtc']];
+
+                        // Loop through each forecast for this day and add condition codes to array
+                        foreach ($weatherData['forecastTimestamps'] as $forecastOfDay)
+                        {
+                            $daysConditionCount['conditionCodes'][] = $forecastOfDay['conditionCode'];
+                        }
+
+                        // Get the most common condition code for that day
+                        $conditionCounts = array_count_values($daysConditionCount['conditionCodes']);
+                        $mostCommonConditionCode = key($conditionCounts);
+
+                        // Add the most common condition code to the day's results
+                        $dayResults['conditionCode'] = $mostCommonConditionCode;
+                        $weatherData[] = $dayResults;
+
+                        $lastDate = $dateString;
+                    }
+                }
+            }
+
+            // Return only the next 3 days (excluding the current day)
+            $fillteredData = array_slice($weatherData, 1, 3);
+            dd($fillteredData);
+            $this->recomendProduct($fillteredData);
+        }
+    }
+
+    public function recomendProduct($fillteredData)
     {
         try
         {
@@ -127,7 +138,7 @@ class WeatherController extends Controller
                 ->toArray();
             $recomendation = [];
 
-            foreach ($weatherCondition as $condition)
+            foreach ($fillteredData as $condition)
             {
                 $matchingProducts = [];
                 foreach ($allProducts as $product)
