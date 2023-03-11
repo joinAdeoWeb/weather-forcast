@@ -54,8 +54,7 @@ class WeatherController extends Controller
         }
         else
         {
-            $city = $request->input('city');
-            $city = strtolower($city);
+            $city = strtolower($request->input('city'));
             $weatherData = [];
 
             try
@@ -63,13 +62,14 @@ class WeatherController extends Controller
                 $url = "https://api.meteo.lt/v1/places/$city/forecasts/long-term";
                 $response = Http::get($url);
                 $weatherData = $response->json();
-                if (count($weatherData) === 0) {
-            return response()->json(['error' => "City not found in the weather data"], 404);
-        }
+                if (count($weatherData) === 0)
+                {
+                    return response()->json(['error' => "City not found in the weather data"], 404);
+                }
             }
             catch(Exception $e)
             {
-                return response()->json(["error" => $e->getMessage() ], 500);
+                return response()->json(['error' => 'An unexpected error occurred. Please try again later.', ], 500);
             }
 
             $recommendation = $this->fillterWeather($weatherData);
@@ -98,7 +98,7 @@ class WeatherController extends Controller
                     $dateString = $forecastDate->format('Y-m-d');
                     if ($dateString !== $lastDate)
                     {
-                        $dayResults = ['name' => $weatherData['place']['name'], 'forecastTimeUtc' => date('Y-m-d', strtotime($forecast['forecastTimeUtc']))];
+                        $dayResults = ['name' => $weatherData['place']['name'], 'forecastTimeUtc' => date('Y-m-d', strtotime($forecast['forecastTimeUtc'])) ];
 
                         // Loop through each forecast for this day and add condition codes to array
                         foreach ($weatherData['forecastTimestamps'] as $forecastOfDay)
@@ -159,7 +159,7 @@ class WeatherController extends Controller
                 $condition['recommendations'] = $matchingProducts;
                 $recommendation[] = $condition;
             }
-    
+
             return $recommendation;
         }
         catch(\Exception $e)
@@ -169,4 +169,3 @@ class WeatherController extends Controller
     }
 
 }
-
