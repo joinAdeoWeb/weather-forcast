@@ -6,7 +6,7 @@
       <title>Weather Forecast Recomendations</title>
    </head>
    <body>
-      <form method="POST" action="{{ route('processForm') }}">
+    <form method="POST" action="{{ route('processForm') }}">
          @csrf
          <label for="city">Enter your city:</label>
          <input type="text" id="city" name="city" list="cities">
@@ -16,6 +16,9 @@
             @endforeach
          </datalist>
          <button type="submit">Submit</button>
+         {{-- @foreach ($recomendation as $recomend)
+            {{$recomend}}
+            @endforeach --}}
       </form>
    </body>
 </html>

@@ -10,7 +10,8 @@ use Illuminate\Http\Request;
 
 class WeatherController extends Controller
 {
-    public function index()
+
+    public function getCityNames()
     {
         try
         {
@@ -25,12 +26,19 @@ class WeatherController extends Controller
                     $cityNames[] = $place['name'];
                 }
             }
-            return view('welcome')->with('cityNames', $cityNames);
+            return $cityNames;
         }
         catch(Exception $e)
         {
+            // Handle exception
             return response()->json(["error" => $e->getMessage() ], 500);
         }
+    }
+
+    public function index()
+    {
+        $cityNames = $this->getCityNames();
+        return view('welcome', ['cityNames' => $cityNames]);
     }
 
     public function processForm(Request $request)
@@ -107,19 +115,21 @@ class WeatherController extends Controller
             }
         }
 
-        return view('welcome');
+        $cityNames = $this->getCityNames();
+        return view('welcome', ['cityNames' => $cityNames]);
     }
 
     public function recomendProduct($weatherCondition)
     {
         try
         {
-            $allProducts = Product::all()->toArray();
-            $matchingProducts = [];
+            $allProducts = Product::where('active', true)->get()
+                ->toArray();
             $recomendation = [];
 
             foreach ($weatherCondition as $condition)
             {
+                $matchingProducts = [];
                 foreach ($allProducts as $product)
                 {
                     // if weather in product maches with weather in perticular day add to matchingProduct
@@ -128,7 +138,7 @@ class WeatherController extends Controller
                         $matchingProducts[] = ['name' => $product['name'], 'sku' => $product['sku'], 'price' => $product['price']];
                     }
 
-                    // break out of the inner loop when 2 maching products are found
+                    // break out of the inner loop when  maching products are found
                     if (count($matchingProducts) >= 2)
                     {
                         break;
@@ -139,12 +149,13 @@ class WeatherController extends Controller
                 $recomendation[] = $condition;
             }
 
-            return response()->json(['recomendation' => $recomendation], 200);
+            return response()->json(['recomendation' => $recomendation]);
         }
         catch(\Exception $e)
         {
-            return response()->json(['error' => $e->getMessage() ], 500);
+            return response()->json(['error' => 'Could not retrieve recommendations'], 500);
         }
     }
+
 }
 
