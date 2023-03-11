@@ -16,9 +16,9 @@
             @endforeach
          </datalist>
          <button type="submit">Submit</button>
-         {{-- @foreach ($recomendation as $recomend)
-            {{$recomend}}
-            @endforeach --}}
-      </form>
+      
+         @foreach ($recomendation as $recomend)
+            {recomend}
+         @endforeach
    </body>
 </html>

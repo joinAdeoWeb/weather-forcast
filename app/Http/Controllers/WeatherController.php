@@ -37,8 +37,9 @@ class WeatherController extends Controller
 
     public function index()
     {
+        $recomendation = [];
         $cityNames = $this->getCityNames();
-        return view('welcome', ['cityNames' => $cityNames]);
+        return view('welcome', ['cityNames' => $cityNames, 'recomendation' => $recomendation]);
     }
 
     public function processForm(Request $request)
@@ -62,27 +63,22 @@ class WeatherController extends Controller
                 $url = "https://api.meteo.lt/v1/places/$city/forecasts/long-term";
                 $response = Http::get($url);
                 $weatherData = $response->json();
-                if (count($weatherData) > 0)
-                {
-                    $results = $weatherData;
-                }
-                else
-                {
-                    return response()->json(['error' => "City not found in the weather data"], 404);
-                }
+                if (count($weatherData) === 0) {
+            return response()->json(['error' => "City not found in the weather data"], 404);
+        }
             }
             catch(Exception $e)
             {
                 return response()->json(["error" => $e->getMessage() ], 500);
             }
 
-            $this->filterWeather($weatherData);
+            $recomendation = $this->fillterWeather($weatherData);
             $cityNames = $this->getCityNames();
-            return view('welcome', ['cityNames' => $cityNames]);
+            return view('welcome', ['cityNames' => $cityNames, 'recomendation' => $recomendation]);
         }
     }
 
-    public function filterWeather($weatherData)
+    public function fillterWeather($weatherData)
     {
         $currentDate = new DateTime('now', new DateTimeZone('UTC'));
         $lastDate = null;
@@ -125,7 +121,8 @@ class WeatherController extends Controller
 
             // Return only the next 3 days (excluding the current day)
             $fillteredData = array_slice($combinedData, 1, 3);
-            $this->recomendProduct($fillteredData);
+            $recomendate = $this->recomendProduct($fillteredData);
+            return $recomendate;
         }
     }
 
@@ -140,10 +137,12 @@ class WeatherController extends Controller
             }
             $allProducts = Product::all()->toArray();
             $recomendation = [];
+
             foreach ($fillteredData as $condition)
+
             {
                 $matchingProducts = [];
-                foreach ($allProducts as $product) dd($condition);
+                foreach ($allProducts as $product)
                 {
                     // if weather in product maches with weather in perticular day add to matchingProduct
                     if ($product['ocasion'] === $condition['conditionCode'])
@@ -157,12 +156,11 @@ class WeatherController extends Controller
                         break;
                     }
                 }
-
                 $condition['recommendations'] = $matchingProducts;
                 $recomendation[] = $condition;
             }
 
-            return response()->json(['recomendation' => $recomendation]);
+            return $recomendation;
         }
         catch(\Exception $e)
         {
