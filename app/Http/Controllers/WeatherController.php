@@ -37,9 +37,9 @@ class WeatherController extends Controller
 
     public function index()
     {
-        $recomendation = [];
+        $recommendation = [];
         $cityNames = $this->getCityNames();
-        return view('welcome', ['cityNames' => $cityNames, 'recomendation' => $recomendation]);
+        return view('welcome', ['cityNames' => $cityNames, 'recommendation' => $recommendation]);
     }
 
     public function processForm(Request $request)
@@ -72,9 +72,9 @@ class WeatherController extends Controller
                 return response()->json(["error" => $e->getMessage() ], 500);
             }
 
-            $recomendation = $this->fillterWeather($weatherData);
+            $recommendation = $this->fillterWeather($weatherData);
             $cityNames = $this->getCityNames();
-            return view('welcome', ['cityNames' => $cityNames, 'recomendation' => $recomendation]);
+            return view('welcome', ['cityNames' => $cityNames, 'recommendation' => $recommendation]);
         }
     }
 
@@ -98,7 +98,7 @@ class WeatherController extends Controller
                     $dateString = $forecastDate->format('Y-m-d');
                     if ($dateString !== $lastDate)
                     {
-                        $dayResults = ['name' => $weatherData['place']['name'], 'forecastTimeUtc' => $forecast['forecastTimeUtc']];
+                        $dayResults = ['name' => $weatherData['place']['name'], 'forecastTimeUtc' => date('Y-m-d', strtotime($forecast['forecastTimeUtc']))];
 
                         // Loop through each forecast for this day and add condition codes to array
                         foreach ($weatherData['forecastTimestamps'] as $forecastOfDay)
@@ -121,12 +121,12 @@ class WeatherController extends Controller
 
             // Return only the next 3 days (excluding the current day)
             $fillteredData = array_slice($combinedData, 1, 3);
-            $recomendate = $this->recomendProduct($fillteredData);
-            return $recomendate;
+            $recommendate = $this->recommendProduct($fillteredData);
+            return $recommendate;
         }
     }
 
-    public function recomendProduct($fillteredData)
+    public function recommendProduct($fillteredData)
     {
 
         try
@@ -136,7 +136,7 @@ class WeatherController extends Controller
                 $fillteredData = json_decode($fillteredData, true);
             }
             $allProducts = Product::all()->toArray();
-            $recomendation = [];
+            $recommendation = [];
 
             foreach ($fillteredData as $condition)
 
@@ -157,10 +157,10 @@ class WeatherController extends Controller
                     }
                 }
                 $condition['recommendations'] = $matchingProducts;
-                $recomendation[] = $condition;
+                $recommendation[] = $condition;
             }
-
-            return $recomendation;
+    
+            return $recommendation;
         }
         catch(\Exception $e)
         {
