@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Validator;
 use App\Service\WeatherFilter;
 use \Illuminate\Contracts\View\View;
@@ -37,10 +39,10 @@ class WeatherController extends Controller
 
             return $cityNames;
         } catch (\Exception $e) {
+            Log::error($e->getMessage());
             return array();
         }
     }
-
 
     public function index(): View
     {
@@ -49,7 +51,7 @@ class WeatherController extends Controller
         return view('welcome', ['cityNames' => $cityNames, 'recommendation' => $recommendation]);
     }
 
-    public function processForm(Request $request)
+    public function processForm(Request $request): View|JsonResponse
     {
         $validatet = Validator::make($request->all(), ['city' => 'required|string|max:25']);
 
@@ -58,7 +60,7 @@ class WeatherController extends Controller
 
         if ($validatet->fails()) {
             return response()
-                ->json(["error" => "Text input is not correct"], 422);
+                ->json(["error" => "Text input is not correct"], 400);
         } else {
             $city = strtolower($request->input('city'));
             $weatherData = [];
@@ -75,6 +77,7 @@ class WeatherController extends Controller
                     }
                     Cache::put($cacheWeather, $weatherData, $cacheTime);
                 } catch (\Exception $e) {
+                    Log::error($e->getMessage());
                     return response()->json(['error' => 'An unexpected error occurred. Please try again later.',], 500);
                 }
             }

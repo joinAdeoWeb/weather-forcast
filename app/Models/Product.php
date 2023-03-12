@@ -10,7 +10,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'ocasion',
+        'occasion',
         'name',
         'sku',
         'price',

@@ -154,7 +154,7 @@ class ProductSeeder extends Seeder
         $faker = Faker::create();
         foreach (range(1, 500) as $index) {
             DB::table('products')->insert([
-                'ocasion' => $faker->randomElement($weatherPossibilitys),
+                'occasion' => $faker->randomElement($weatherPossibilitys),
                 'name' => $faker->randomElement($clothes),
                 'sku' => $faker->regexify('[A-Za-z0-9]{5}'),
                 'price' => rand(1, 100),

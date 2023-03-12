@@ -50,20 +50,20 @@ class WeatherFilter
         return [];
     }
 
-    public static function recommendProduct($fillteredData): array
+    public static function recommendProduct($filteredData): array
     {
-        if (!is_array($fillteredData)) {
-            $fillteredData = json_decode($fillteredData, true);
+        if (!is_array($filteredData)) {
+            $filteredData = json_decode($filteredData, true);
         }
         $allProducts = Product::all()->toArray();
         $recommendation = [];
 
-        foreach ($fillteredData as $condition) {
+        foreach ($filteredData as $condition) {
             $matchingProducts = [];
             foreach ($allProducts as $product) {
 
                 // if weather in product maches with weather in perticular day add to matchingProduct
-                if ($product['ocasion'] === $condition['conditionCode']) {
+                if ($product['occasion'] === $condition['conditionCode']) {
                     $matchingProducts[] = ['name' => $product['name'], 'sku' => $product['sku'], 'price' => $product['price']];
                 }
 
