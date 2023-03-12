@@ -36,18 +36,22 @@
                <td>{{ $weather['conditionCode'] }}</td>
                <td>
                   <ul>
+                     @if(!empty($weather['recommendations']))
                      @foreach($weather['recommendations'] as $recommendation)
                      <li>
                         {{ $recommendation['name'] }} <br> SKU:{{ $recommendation['sku'] }} <br> Price:€{{ $recommendation['price'] }} 
                      </li>
                      @endforeach
+                     @else
+                     No recomendations found
+                     @endif
                   </ul>
                </td>
             </tr>
             @endforeach
          </tbody>
       </table>
-      @else(!empty($recommendation))
+      @else(!empty($recommendation) && $recommendation['message'] === 'Not Found')
       <p>NO DATA AVAILABLE</p>
       @endif
    </body>
