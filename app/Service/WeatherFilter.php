@@ -13,7 +13,6 @@ class WeatherFilter
         $currentDate = new DateTime('now', new DateTimeZone('UTC'));
         $lastDate = null;
         $combinedData = [];
-
         if (isset($weatherData['forecastTimestamps'])) {
             // Loop through each day in the forecast
             foreach ($weatherData['forecastTimestamps'] as $forecast) {

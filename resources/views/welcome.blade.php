@@ -11,14 +11,14 @@
       @csrf
       <h1>Weather information is provided from <a href="https://api.meteo.lt/">Meteo.lt</a></h1>
       <label for="city">Enter city to get clothes recommendation:</label>
-      <input type="text" id="city" name="city" list="cities">
+      <input type="text" id="city" name="city" list="cities" required maxlength="25">
       <datalist id="cities">
          @foreach ($cityNames as $city)
          <option value={{ $city }}>{{$city}}
          @endforeach
       </datalist>
       <button type="submit">Submit</button>
-      @if(isset($recommendation))
+      @if(isset($recommendation) && !empty($recommendation))
       <table>
          <thead>
             <tr>
@@ -51,7 +51,7 @@
             @endforeach
          </tbody>
       </table>
-      @else(!empty($recommendation) && $recommendation['message'] === 'Not Found')
+      @elseif(empty($recommendation))
       <p>NO DATA AVAILABLE</p>
       @endif
    </body>
