@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Http;
 use Validator;
 use App\Service\WeatherFilter;
 use \Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 
 use Illuminate\Http\Request;
 
@@ -13,6 +14,14 @@ class WeatherController extends Controller
 
     public function getCityNames()
     {
+        $cacheCity = 'city_names';
+        // 5min cahce
+        $cacheTime = 5 * 60;
+
+        if (Cache::has($cacheCity)) {
+            return Cache::get($cacheCity);
+        }
+
         try {
             $url = "https://api.meteo.lt/v1/places";
             $response = Http::get($url);
@@ -23,12 +32,15 @@ class WeatherController extends Controller
                     $cityNames[] = $place['name'];
                 }
             }
+
+            Cache::put($cacheCity, $cityNames, $cacheTime);
+
             return $cityNames;
         } catch (\Exception $e) {
-            // Handle exception
-            return response()->json(["error" => $e->getMessage()], 500);
+            return array();
         }
     }
+
 
     public function index(): View
     {
@@ -41,26 +53,35 @@ class WeatherController extends Controller
     {
         $validatet = Validator::make($request->all(), ['city' => 'required|string|max:25']);
 
+        // 5min cache
+        $cacheTime = 5 * 60;
+
         if ($validatet->fails()) {
             return response()
                 ->json(["error" => "Text input is not correct"], 422);
         } else {
             $city = strtolower($request->input('city'));
             $weatherData = [];
-            try {
-                $url = "https://api.meteo.lt/v1/places/$city/forecasts/long-term";
-                $response = Http::get($url);
-                $weatherData = $response->json();
-                if (count($weatherData) === 0) {
-                    return response()->json(['error' => "City not found in the weather data"], 404);
+            $cacheWeather = 'weather_data_' . $city;
+            if (Cache::has($cacheWeather)) {
+                $weatherData = Cache::get($cacheWeather);
+            } else {
+                try {
+                    $url = "https://api.meteo.lt/v1/places/$city/forecasts/long-term";
+                    $response = Http::get($url);
+                    $weatherData = $response->json();
+                    if (count($weatherData) === 0) {
+                        return response()->json(['error' => "City not found in the weather data"], 404);
+                    }
+                    Cache::put($cacheWeather, $weatherData, $cacheTime);
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'An unexpected error occurred. Please try again later.',], 500);
                 }
-
-                $recommendation = WeatherFilter::filter($weatherData);
-                $cityNames = $this->getCityNames();
-                return view('welcome', ['cityNames' => $cityNames, 'recommendation' => $recommendation]);
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'An unexpected error occurred. Please try again later.',], 500);
             }
+
+            $recommendation = WeatherFilter::filter($weatherData);
+            $cityNames = $this->getCityNames();
+            return view('welcome', ['cityNames' => $cityNames, 'recommendation' => $recommendation]);
         }
     }
 }

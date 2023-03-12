@@ -46,11 +46,8 @@ class WeatherFilter
             // Return only the next 3 days (excluding the current day)
             $fillteredData = array_slice($combinedData, 1, 3);
             $recommendate = self::recommendProduct($fillteredData);
-
-
             return $recommendate;
         }
-
         return [];
     }
 
@@ -71,17 +68,13 @@ class WeatherFilter
                     $matchingProducts[] = ['name' => $product['name'], 'sku' => $product['sku'], 'price' => $product['price']];
                 }
 
-
-
                 // break out of the inner loop when  maching products are found
                 if (count($matchingProducts) >= 2) {
                     break;
                 }
             }
-
             $condition['recommendations'] = $matchingProducts;
             $recommendation[] = $condition;
-
         }
         return $recommendation;
     }
