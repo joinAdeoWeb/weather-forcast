@@ -2,13 +2,13 @@
 
 This is a web application built using Laravel and MySQL that allows users to get the weather conditions for the next three days and receive two clothing recommendations for each day. Users simply need to enter the name of a city and the application will retrieve the relevant weather information and display the recommendations.
 
-Prerequisites
+<h3>Requirements</h3>
 
 XAMPP
 Git
 Composer
 
-Installation
+<h3>Installation</h3>
 
 1. Clone the Git repository to your local machine:
 git clone [https://github.com/your-username/weather-app.git](https://github.com/Deiv-Dev/weather-forcast.git)
@@ -45,7 +45,7 @@ php artisan serve
 
 11. Navigate to http://localhost:8000 in your web browser to use the application.
 
-Usage
+<h3>Usage</h3>
 
 Enter the name of a city in the input field and click the "Get Weather" button.
 The application will retrieve the weather information for the next three days and display it on the page.
