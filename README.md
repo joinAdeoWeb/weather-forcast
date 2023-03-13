@@ -25,7 +25,7 @@ composer install
 
 5. Create a new database for the application in MySQL.
 
-6 .Copy the .env.example file to a new file called .env and update the following variables with your database information:
+6. Copy the .env.example file to a new file called .env and update the following variables with your database information:
 
 DB_DATABASE=your_database_name <br>
 DB_USERNAME=your_database_username <br>
