@@ -25,10 +25,8 @@ composer install
 
 6 .Copy the .env.example file to a new file called .env and update the following variables with your database information:
 
-DB_DATABASE=your_database_name
-
-DB_USERNAME=your_database_username
-
+DB_DATABASE=your_database_name <br>
+DB_USERNAME=your_database_username <br>
 DB_PASSWORD=your_database_password
 
 7. Generate a new application key:
