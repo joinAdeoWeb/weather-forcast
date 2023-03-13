@@ -4,8 +4,10 @@ This is a web application built using Laravel and MySQL that allows users to get
 
 <h3>Requirements</h3>
 
-XAMPP
+XAMPP 
+
 Git
+
 Composer
 
 <h3>Installation</h3>
