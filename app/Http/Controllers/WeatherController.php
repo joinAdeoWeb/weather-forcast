@@ -17,9 +17,11 @@ class WeatherController extends Controller
     public function getCityNames()
     {
         $cacheCity = 'city_names';
+
         // 5min cahce
         $cacheTime = 5 * 60;
 
+        // Check if the city names is in the cache
         if (Cache::has($cacheCity)) {
             return Cache::get($cacheCity);
         }
@@ -29,6 +31,8 @@ class WeatherController extends Controller
             $response = Http::get($url);
             $places = $response->json();
             $cityNames = array();
+
+            // Takes only unque city names
             foreach ($places as $place) {
                 if (!in_array($place['name'], $cityNames)) {
                     $cityNames[] = $place['name'];
@@ -36,8 +40,8 @@ class WeatherController extends Controller
             }
 
             Cache::put($cacheCity, $cityNames, $cacheTime);
-
             return $cityNames;
+
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return array();
@@ -65,6 +69,8 @@ class WeatherController extends Controller
             $city = strtolower($request->input('city'));
             $weatherData = [];
             $cacheWeather = 'weather_data_' . $city;
+
+            // Check if the city weather is in the cache
             if (Cache::has($cacheWeather)) {
                 $weatherData = Cache::get($cacheWeather);
             } else {
@@ -82,6 +88,7 @@ class WeatherController extends Controller
                 }
             }
 
+            // Fill ter weather to 3 next days with 2 clothes recomendations for each day
             $recommendation = WeatherFilter::filter($weatherData);
             $cityNames = $this->getCityNames();
             return view('welcome', ['cityNames' => $cityNames, 'recommendation' => $recommendation]);
