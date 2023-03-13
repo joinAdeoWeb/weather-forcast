@@ -47,7 +47,7 @@ php artisan db:seed
 10. Start the application:
 php artisan serve
 
-11. Navigate to http://localhost:8000 in your web browser to use the application.
+11. Navigate to http://127.0.0.1:8000 in your web browser to use the application.
 
 <h3>Usage</h3>
 
