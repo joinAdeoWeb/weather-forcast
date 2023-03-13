@@ -40,7 +40,7 @@ php artisan migrate
 9. Populate the database with seed data:
 php artisan db:seed
 
-10.Start the application:
+10. Start the application:
 php artisan serve
 
 11. Navigate to http://localhost:8000 in your web browser to use the application.
