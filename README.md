@@ -8,7 +8,7 @@ Composer
 
 Installation
 1. Clone the Git repository to your local machine:
-git clone https://github.com/your-username/weather-app.git
+git clone [https://github.com/your-username/weather-app.git](https://github.com/Deiv-Dev/weather-forcast.git)
 
 2. Change to the project directory:
 cd weather-app
@@ -21,6 +21,7 @@ composer install
 5. Create a new database for the application in MySQL.
 
 6 .Copy the .env.example file to a new file called .env and update the following variables with your database information:
+
 DB_DATABASE=your_database_name
 DB_USERNAME=your_database_username
 DB_PASSWORD=your_database_password
