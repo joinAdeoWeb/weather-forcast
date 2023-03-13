@@ -1,4 +1,4 @@
-Clothes Recommendation App
+<h1>Clothes Recommendation App</h1>
 
 This is a web application built using Laravel and MySQL that allows users to get the weather conditions for the next three days and receive two clothing recommendations for each day. Users simply need to enter the name of a city and the application will retrieve the relevant weather information and display the recommendations.
 
