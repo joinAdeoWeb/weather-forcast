@@ -11,7 +11,7 @@ Composer
 <h3>Installation</h3>
 
 1. Clone the Git repository to your local machine:
-git clone [https://github.com/your-username/weather-app.git](https://github.com/Deiv-Dev/weather-forcast.git)
+git clone [https://github.com/your-username/weather-app.git](https://github.com/Deiv-Dev/library.git)
 
 2. Change to the project directory:
 cd weather-app
