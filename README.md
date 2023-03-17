@@ -2,6 +2,10 @@
 
 This is a web application built using Laravel and MySQL that allows users to get the weather conditions for the next three days and receive two clothing recommendations for each day. Users simply need to enter the name of a city and the application will retrieve the relevant weather information and display the recommendations.
 
+<h3>Preview</h3>
+
+https://weather.deivdev.com/
+
 <h3>Requirements</h3>
 
 XAMPP 
@@ -43,7 +47,7 @@ php artisan db:seed
 10. Start the application:
 php artisan serve
 
-11. Navigate to http://localhost:8000 in your web browser to use the application.
+11. Navigate to http://127.0.0.1:8000 in your web browser to use the application.
 
 <h3>Usage</h3>
 
