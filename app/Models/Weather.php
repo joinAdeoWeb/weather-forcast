@@ -5,18 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
+class Weather extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'sku',
-        'price',
+        'weather',
     ];
 
-    public function weathers()
+    protected $table = 'weathers';
+
+    public function products()
     {
-        return $this->belongsToMany(Weather::class, 'product_weather');
+        return $this->belongsToMany(Product::class, 'product_weather');
     }
 }

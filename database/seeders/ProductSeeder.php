@@ -7,6 +7,9 @@ use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
 use DB;
 
+use App\Models\Product;
+use App\Models\Weather;
+
 class ProductSeeder extends Seeder
 {
     /**
@@ -152,9 +155,17 @@ class ProductSeeder extends Seeder
         );
 
         $faker = Faker::create();
+
+        foreach ($weatherPossibilitys as $index) {
+            DB::table('weathers')->insert([
+                'weather' => $index,
+                'created_at' => $faker->date($format = 'Y-m-d', $max = 'now'),
+                'updated_at' => $faker->date($format = 'Y-m-d', $max = 'now')
+            ]);
+        }
+
         foreach (range(1, 500) as $index) {
             DB::table('products')->insert([
-                'occasion' => $faker->randomElement($weatherPossibilitys),
                 'name' => $faker->randomElement($clothes),
                 'sku' => $faker->regexify('[A-Za-z0-9]{5}'),
                 'price' => rand(1, 100),
@@ -162,5 +173,14 @@ class ProductSeeder extends Seeder
                 'updated_at' => $faker->date($format = 'Y-m-d', $max = 'now')
             ]);
         }
+
+        $products = Product::all();
+
+        foreach ($products as $product) {
+            $weatherIds = Weather::inRandomOrder()->limit(3)->pluck('id');
+
+            $product->weathers()->attach($weatherIds);
+        }
+
     }
 }
