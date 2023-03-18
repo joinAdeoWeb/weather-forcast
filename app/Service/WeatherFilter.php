@@ -25,20 +25,29 @@ class WeatherFilter
                 if ($diff->days <= 3) {
                     $dateString = $forecastDate->format('Y-m-d');
                     if ($dateString !== $lastDate) {
+
                         $dayResults = ['name' => $weatherData['original']['place']['name'], 'forecastTimeUtc' => date('Y-m-d', strtotime($forecast['forecastTimeUtc']))];
+                        $daysConditionCount = ['conditionCodes' => []];
 
                         // Loop through each forecast for this day and add condition codes to array
                         foreach ($weatherData['original']['forecastTimestamps'] as $forecastOfDay) {
-                            $daysConditionCount['conditionCodes'][] = $forecastOfDay['conditionCode'];
+                            $forecastOfDayDate = new DateTime($forecastOfDay['forecastTimeUtc']);
+                            $forecastOfDayDateString = $forecastOfDayDate->format('Y-m-d');
+
+                            if ($dateString == $forecastOfDayDateString) {
+                                $daysConditionCount['conditionCodes'][] = $forecastOfDay['conditionCode'];
+                            }
                         }
 
                         // Get the most common condition code for that day
                         $conditionCounts = array_count_values($daysConditionCount['conditionCodes']);
+                        arsort($conditionCounts);
                         $mostCommonConditionCode = key($conditionCounts);
 
                         // Add the most common condition code to the day's results
                         $dayResults['conditionCode'] = $mostCommonConditionCode;
                         $combinedData[] = $dayResults;
+
                         $lastDate = $dateString;
                     }
                 }
