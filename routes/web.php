@@ -13,5 +13,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', ["App\Http\Controllers\WeatherController", 'index'])->name('index');
-Route::post('/submit-form', ["App\Http\Controllers\WeatherController", 'processForm'])->name('processForm');
+// Route::get('/', ["App\Http\Controllers\WeatherController", 'index'])->name('index');
+// Route::post('/submit-form', ["App\Http\Controllers\WeatherController", 'processForm'])->name('processForm');

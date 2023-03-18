@@ -5,24 +5,24 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Validator;
 use App\Service\WeatherFilter;
 use App\Service\WeatherApi;
-use \Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 
 use Illuminate\Http\Request;
 
 class WeatherController extends Controller
 {
-    public function index(): View
+    public function getCityNames(): JsonResponse
     {
-        $recommendation = [];
         $cityNames = WeatherApi::getCityNames();
-        $recommendation = WeatherFilter::filter($recommendation);
-
-        return view('welcome', ['cityNames' => $cityNames, 'recommendation' => $recommendation]);
+        return response()->json($cityNames, 200);
     }
 
-    public function processForm(Request $request): View|JsonResponse
+    public function processForm(Request $request): JsonResponse
     {
         $validatet = Validator::make($request->all(), ['city' => 'required|string|max:25']);
+
+        // 5min cache
+        $cacheTime = 5 * 60;
 
         if ($validatet->fails()) {
             return response()
@@ -30,12 +30,14 @@ class WeatherController extends Controller
         } else {
             $city = strtolower($request->input('city'));
             $weatherData = [];
+            $cacheWeather = 'weather_data_' . $city;
             $weatherData = WeatherApi::getCityWeather($city);
-
-            // Fill ter weather to 3 next days with 2 clothes recomendations for each day
-            $recommendation = WeatherFilter::filter($weatherData);
-            $cityNames = $this->getCityNames();
-            return view('welcome', ['cityNames' => $cityNames, 'recommendation' => $recommendation]);
+            Cache::put($cacheWeather, $weatherData, $cacheTime);
         }
+
+        // Fill ter weather to 3 next days with 2 clothes recomendations for each day
+        $recommendation = WeatherFilter::filter($weatherData);
+
+        return response()->json($recommendation, 200);
     }
 }
