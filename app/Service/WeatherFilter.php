@@ -5,6 +5,7 @@ use DateTime;
 use DateTimeZone;
 use App\Models\Product;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 
 class WeatherFilter
 {
@@ -65,15 +66,36 @@ class WeatherFilter
 
     public static function recommendProduct(array $filteredData): JsonResponse
     {
+        $cacheRecommended = $filteredData[0]['name'];
+        // 5min cahce
+        $cacheTime = 5 * 60;
+
+        // Check if recomendations for that city is in the cache
+        if (Cache::has($cacheRecommended)) {
+            $recommendedProducts = Cache::get($cacheRecommended);
+            return response()->json($recommendedProducts, 200);
+        }
+
         try {
-            $allProducts = Product::with('weathers')->get()->toArray();
             $recommendation = [];
             foreach ($filteredData as $condition) {
+                // Get up to 2 random products that have a specific weather condition.
+                $allProducts =
+                    Product::with('weathers')
+                        ->whereHas('weathers', function ($query) use ($condition) {
+                            $query->where('weather', $condition['conditionCode']);
+                        })
+                        ->inRandomOrder()
+                        ->limit(2)
+                        ->get()
+                        ->toArray();
+
                 $matchingProducts = [];
                 foreach ($allProducts as $product) {
+                    $cloudyData = array_filter($product['weathers'], fn($data) => $data["weather"] === $condition['conditionCode']);
 
                     // if weather in product maches with weather in perticular day add to matchingProduct
-                    if ($product['weathers'][0]['weather'] === $condition['conditionCode']) {
+                    if ($cloudyData) {
                         $matchingProducts[] = ['name' => $product['name'], 'sku' => $product['sku'], 'price' => $product['price']];
                     }
 
@@ -84,6 +106,7 @@ class WeatherFilter
                 }
                 $condition['recommendations'] = $matchingProducts;
                 $recommendation[] = $condition;
+                Cache::put($cacheRecommended, $recommendation, $cacheTime);
             }
             return response()->json($recommendation, 200);
         } catch (\Exception $e) {

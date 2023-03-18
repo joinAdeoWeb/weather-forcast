@@ -17,7 +17,7 @@ class WeatherController extends Controller
         return response()->json($cityNames, 200);
     }
 
-    public function processForm(Request $request): JsonResponse
+    public function processForm(Request $request) //: JsonResponse
     {
         $validatet = Validator::make($request->all(), ['city' => 'required|string|max:25']);
 
@@ -29,10 +29,15 @@ class WeatherController extends Controller
                 ->json(["error" => "Text input is not correct"], 400);
         } else {
             $city = strtolower($request->input('city'));
-            $weatherData = [];
             $cacheWeather = 'weather_data_' . $city;
-            $weatherData = WeatherApi::getCityWeather($city);
-            Cache::put($cacheWeather, $weatherData, $cacheTime);
+            $weatherData = [];
+
+            if (Cache::has($cacheWeather)) {
+                $weatherData = Cache::get($cacheWeather);
+            } else {
+                $weatherData = WeatherApi::getCityWeather($city);
+                Cache::put($cacheWeather, $weatherData, $cacheTime);
+            }
         }
 
         // Fill ter weather to 3 next days with 2 clothes recomendations for each day
