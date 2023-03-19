@@ -1,7 +1,7 @@
 <h3>Installation</h3>
 
 1. Clone the Git repository to your local machine:
-`git clone [https://github.com/your-username/weather-app.git](https://github.com/Deiv-Dev/library.git)`
+`git clone https://github.com/your-username/weather-app.git`
 
 2. Install Docker on your system if you haven't already done so.
 
