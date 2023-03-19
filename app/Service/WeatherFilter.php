@@ -64,11 +64,23 @@ class WeatherFilter
             ->json(['message' => 'No city with recommendations found'], 400);
     }
 
+    public static function getProductsByWeather(string $conditionCode)
+    {
+        return Product::with('weathers')
+            ->whereHas('weathers', function ($query) use ($conditionCode) {
+                $query->where('weather', $conditionCode);
+            })
+            ->inRandomOrder()
+            ->limit(2)
+            ->get()
+            ->toArray();
+    }
+
+    const CACHE_TIME = 300; // 5min
+
     public static function recommendProduct(array $filteredData): JsonResponse
     {
         $cacheRecommended = $filteredData[0]['name'];
-        // 5min cahce
-        $cacheTime = 5 * 60;
 
         // Check if recomendations for that city is in the cache
         if (Cache::has($cacheRecommended)) {
@@ -80,15 +92,7 @@ class WeatherFilter
             $recommendation = [];
             foreach ($filteredData as $condition) {
                 // Get up to 2 random products that have a specific weather condition.
-                $allProducts =
-                    Product::with('weathers')
-                        ->whereHas('weathers', function ($query) use ($condition) {
-                            $query->where('weather', $condition['conditionCode']);
-                        })
-                        ->inRandomOrder()
-                        ->limit(2)
-                        ->get()
-                        ->toArray();
+                $allProducts = self::getProductsByWeather($condition['conditionCode']);
 
                 $matchingProducts = [];
                 foreach ($allProducts as $product) {
@@ -106,7 +110,7 @@ class WeatherFilter
                 }
                 $condition['recommendations'] = $matchingProducts;
                 $recommendation[] = $condition;
-                Cache::put($cacheRecommended, $recommendation, $cacheTime);
+                Cache::put($cacheRecommended, $recommendation, self::CACHE_TIME);
             }
             return response()->json($recommendation, 200);
         } catch (\Exception $e) {

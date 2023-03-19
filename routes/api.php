@@ -14,5 +14,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('city-names', 'App\Http\Controllers\WeatherController@getCityNames');
 Route::post('clothes-recomendations', 'App\Http\Controllers\WeatherController@processForm');
