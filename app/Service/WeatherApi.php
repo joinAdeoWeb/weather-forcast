@@ -2,20 +2,24 @@
 namespace App\Service;
 
 use Illuminate\Support\Facades\Http;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 
 class WeatherApi
 {
-    public static function getCityWeather(string $city): JsonResponse
+    const CACHE_TIME = 300; // 5min
+
+    public static function getCityWeather(string $city): array
     {
-        try {
-            $url = "https://api.meteo.lt/v1/places/$city/forecasts/long-term";
-            $response = Http::get($url);
-            $weatherData = $response->json();
-            return response()->json($weatherData);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'An unexpected error occurred. Please try again later.'], 500);
+        if (Cache::has($city)) {
+            return (array) Cache::get($city);
         }
+
+        $url = "https://api.meteo.lt/v1/places/$city/forecasts/long-term";
+        $response = Http::get($url);
+        $weatherData = $response->json();
+
+        Cache::put($city, $weatherData, self::CACHE_TIME);
+
+        return $weatherData;
     }
 }
