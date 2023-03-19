@@ -3,7 +3,8 @@
 1. Clone the Git repository to your local machine:
 `git clone https://github.com/Deiv-Dev/weather-forcast.git`
 
-2. Install Docker on your system if you haven't already done so.
+2. Install Docker on your system if you haven't already done so. 
+You can use docker-compose from here `https://github.com/aschmelyun/docker-compose-laravel/`
 
 3. Open a terminal or command prompt and navigate to the root directory of the cloned repository.
 
