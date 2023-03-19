@@ -1,11 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Illuminate\Http\JsonResponse;
 use Validator;
 use App\Service\WeatherFilter;
 use App\Service\WeatherApi;
-use Illuminate\Support\Facades\Cache;
 
 use Illuminate\Http\Request;
 
@@ -13,7 +12,7 @@ class WeatherController extends Controller
 {
     const CACHE_TIME = 300; // 5min
 
-    public function processForm(Request $request) //: JsonResponse
+    public function processForm(Request $request): JsonResponse
     {
         $validatet = Validator::make($request->all(), ['city' => 'required|string|max:25']);
 
@@ -31,6 +30,7 @@ class WeatherController extends Controller
             if (count($recommendation) === 0) {
                 return response()->json(["message" => "no recommendatios found"], 200);
             }
+
             return response()->json($recommendation, 200);
         } catch (\Exception $e) {
             return response()->json(["error" => "request failed"], 500);
